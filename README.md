@@ -275,16 +275,33 @@ If your agent is compromised, the attacker cannot disable FireClaw. Period.
 
 ---
 
-## Hardware Integration (Optional)
+## Hardware Appliance (Optional)
 
-FireClaw can run on a **Raspberry Pi** with an OLED display for physical monitoring:
+FireClaw can run as a dedicated physical appliance on a **Raspberry Pi** with a 3D-printed enclosure and OLED display.
 
-- Real-time fetch counts and detection stats
-- Alert severity indicators
-- Network status
-- Visual confirmation that your defense is running
+<p align="center">
+  <img src="images/fireclaw-appliance.png" alt="FireClaw Appliance" width="600">
+</p>
 
-See the `oled/` directory for display scripts and wiring guides.
+The 128×64 OLED display (SSD1306, I2C) rotates through five screens every 5 seconds:
+
+| Screen | What It Shows |
+|--------|---------------|
+| **Claw** | Animated FireClaw logo — ignites with flames and sparks when a threat is detected, with `!! THREAT !!` banner |
+| **IP/Network** | Device hostname and IP address |
+| **Today's Stats** | Live fetch count and threat detections for the current day |
+| **Uptime** | How long the proxy has been running (days/hours/minutes) with a heartbeat indicator |
+| **Health** | CPU temperature, RAM usage, and disk usage |
+
+<p align="center">
+  <img src="images/fireclaw-oled-display.jpg" alt="OLED Display — Today's Stats" width="300">
+  <br>
+  <em>OLED showing daily fetch and threat counts</em>
+</p>
+
+When a threat is detected, the display interrupts its rotation to show the claw icon engulfed in animated flames for 5 seconds — a visual confirmation that FireClaw caught something.
+
+See the `oled/` directory for the display service, claw bitmap, and wiring details.
 
 ---
 
