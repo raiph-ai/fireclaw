@@ -1,0 +1,9 @@
+node_modules/
+logs/
+data/settings.json
+.env
+.env.local
+*.log
+.DS_Store
+dashboard/data/settings.json
+dashboard.bak.*

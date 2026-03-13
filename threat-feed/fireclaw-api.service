@@ -1,0 +1,47 @@
+# FireClaw Threat Feed API - systemd Service Unit
+# 
+# Installation:
+# 1. Copy to /etc/systemd/system/fireclaw-api.service
+# 2. Update paths and user to match your setup
+# 3. sudo systemctl daemon-reload
+# 4. sudo systemctl enable fireclaw-api
+# 5. sudo systemctl start fireclaw-api
+#
+# View logs: sudo journalctl -u fireclaw-api -f
+
+[Unit]
+Description=FireClaw Threat Feed API
+Documentation=https://fireclaw.app/docs
+After=network.target
+
+[Service]
+Type=simple
+User=fireclaw
+Group=fireclaw
+WorkingDirectory=/opt/fireclaw-api
+
+# Main process
+ExecStart=/usr/bin/node server.mjs
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Environment
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/fireclaw-api/data
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=fireclaw-api
+
+[Install]
+WantedBy=multi-user.target

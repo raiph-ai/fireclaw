@@ -1,0 +1,70 @@
+# FireClaw Threat Feed API Configuration
+
+server:
+  port: 3000
+  host: '0.0.0.0'
+  trustProxy: true  # Enable if behind reverse proxy (nginx, etc.)
+
+database:
+  path: './data/fireclaw.db'
+  # SQLite runs in WAL mode for better concurrent access
+
+rateLimits:
+  # POST /api/report - per instanceId
+  report:
+    windowMs: 60000        # 1 minute
+    maxRequests: 10        # 10 reports per minute per instance
+  
+  # GET /api/reputation/:domain
+  reputation:
+    windowMs: 60000        # 1 minute
+    maxRequests: 30        # 30 lookups per minute per IP
+  
+  # Global rate limit for all endpoints
+  global:
+    windowMs: 60000        # 1 minute
+    maxRequests: 100       # 100 requests per minute per IP
+
+security:
+  # API keys for report endpoint - instances must authenticate
+  # Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+  apiKeys:
+    - "GENERATE_AND_REPLACE_WITH_SECURE_KEY_1"
+    - "GENERATE_AND_REPLACE_WITH_SECURE_KEY_2"
+  
+  # CORS settings
+  cors:
+    enabled: true
+    origins:
+      - "https://fireclaw.app"
+      - "http://localhost:*"  # For local development
+
+# Public threat feed sources for aggregation (future enhancement)
+externalSources:
+  urlhaus:
+    enabled: false  # Enable when aggregation is implemented
+    url: "https://urlhaus.abuse.ch/downloads/json/"
+    refreshIntervalHours: 6
+  
+  phishtank:
+    enabled: false
+    url: "http://data.phishtank.com/data/online-valid.json"
+    refreshIntervalHours: 1
+  
+  openphish:
+    enabled: false
+    url: "https://openphish.com/feed.txt"
+    refreshIntervalHours: 1
+
+# Pattern version tracking
+patterns:
+  currentVersion: 1
+  # Increment this when pattern signatures are updated
+
+# Stats and cleanup
+maintenance:
+  # Clean up old reports (keep for analysis but not in live queries)
+  reportRetentionDays: 90
+  
+  # Aggregation intervals
+  statsUpdateIntervalMinutes: 5

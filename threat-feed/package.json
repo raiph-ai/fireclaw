@@ -1,0 +1,34 @@
+{
+  "name": "fireclaw-threat-feed",
+  "version": "1.0.0",
+  "description": "FireClaw Community Threat Feed API - Aggregates and serves threat intelligence from FireClaw instances",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "init-db": "node db.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "security",
+    "threat-feed",
+    "fireclaw",
+    "api"
+  ],
+  "author": "FireClaw Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^9.4.0",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "cors": "^2.8.5",
+    "yaml": "^2.3.4",
+    "joi": "^17.11.0",
+    "nanoid": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

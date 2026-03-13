@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FireClaw Dashboard</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="style.css?v=20260217c">
+</head>
+<body>
+  <!-- Setup Wizard Screen (first-time only) -->
+  <div id="setup-screen" class="screen">
+    <div class="login-container setup-container">
+      <div class="logo">
+        <img src="fireclaw-logo.png" alt="FireClaw" class="logo-icon-img">
+        <h1>FireClaw</h1>
+        <p class="tagline">First-Time Setup</p>
+      </div>
+
+      <div class="setup-wizard">
+        <h2>Welcome to FireClaw</h2>
+        <p class="help-text">Set a password to secure your dashboard. Access is restricted to your local network only.</p>
+
+        <!-- Password Setup Fields (password-only, OTP removed) -->
+        <div id="setup-password-fields" class="setup-fields">
+          <div class="form-group">
+            <label for="setup-password">Password</label>
+            <input type="password" id="setup-password" placeholder="Choose a strong password" minlength="8">
+          </div>
+          <div class="form-group">
+            <label for="setup-password-confirm">Confirm Password</label>
+            <input type="password" id="setup-password-confirm" placeholder="Confirm password">
+          </div>
+          <p class="field-help">A recovery key will be generated and saved to <code>recovery-key.txt</code> on the server. If you forget your password, SSH in and use it to reset. You can also delete <code>data/settings.json</code> and restart the service to re-run this setup.</p>
+        </div>
+
+        <div id="setup-error" class="error-message hidden"></div>
+        <button id="setup-save-btn" class="btn btn-primary">🔒 Save & Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onboarding Wizard (after first password setup) -->
+  <div id="onboarding-screen" class="screen">
+    <div class="login-container setup-container">
+      <div class="logo">
+        <img src="fireclaw-logo.png" alt="FireClaw" class="logo-icon-img">
+        <h1>FireClaw</h1>
+        <p class="tagline">Almost Ready!</p>
+      </div>
+      <div class="setup-wizard">
+        <h2>Configure Your Setup</h2>
+        <p class="help-text">Connect FireClaw to OpenClaw and configure your LLM provider for content analysis.</p>
+        
+        <!-- Requirements Checklist -->
+        <div class="onboard-checklist">
+          <div class="checklist-item completed" id="check-password">
+            <span class="check-icon check-complete"></span>
+            <span class="check-label">Password Set</span>
+          </div>
+          <div class="checklist-item" id="check-openclaw">
+            <span class="check-icon check-incomplete"></span>
+            <span class="check-label">OpenClaw Connection</span>
+          </div>
+          <div class="checklist-item" id="check-llm">
+            <span class="check-icon check-incomplete"></span>
+            <span class="check-label">LLM Configuration</span>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="onboard-gateway-url">Gateway URL</label>
+          <input type="text" id="onboard-gateway-url" placeholder="http://localhost:3000" class="text-input">
+          <p class="field-help">Ask your OpenClaw agent: "What is my gateway URL?"</p>
+        </div>
+        <div class="form-group">
+          <label for="onboard-gateway-token">Gateway Token</label>
+          <input type="password" id="onboard-gateway-token" placeholder="Your OpenClaw gateway token" class="text-input">
+          <p class="field-help">Ask your OpenClaw agent: "What is my gateway token?"</p>
+        </div>
+        
+        <div class="form-group">
+          <label for="onboard-llm-provider">LLM Provider</label>
+          <select id="onboard-llm-provider" class="settings-select" style="width:100%">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="google">Google (Gemini)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="openrouter">OpenRouter (Multi-model)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="onboard-llm-model">Model</label>
+          <select id="onboard-llm-model" class="settings-select" style="width:100%">
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="onboard-llm-api-key">API Key</label>
+          <div class="api-key-control" style="width:100%">
+            <input type="password" id="onboard-llm-api-key" placeholder="Enter API key" class="text-input api-key-input" style="flex:1" autocomplete="off">
+            <button type="button" id="onboard-toggle-api-key" class="btn btn-icon" title="Show/hide API key">👁️</button>
+          </div>
+          <p class="field-help">Your API key for the selected provider. Stored locally only.</p>
+        </div>
+        
+        <div id="onboard-error" class="error-message hidden"></div>
+        <div class="onboard-actions">
+          <button id="onboard-save-btn" class="btn btn-primary">🚀 Save & Launch Dashboard</button>
+          <button id="onboard-skip-btn" class="btn btn-secondary">Skip for now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="screen active">
+    <div class="login-container">
+      <div class="logo">
+        <img src="fireclaw-logo.png" alt="FireClaw" class="logo-icon-img">
+        <h1>FireClaw</h1>
+        <p class="tagline">Proxy Security Dashboard</p>
+      </div>
+      
+      <!-- OTP Login -->
+
+      <!-- Update Banner -->
+      <div id="update-banner" class="update-banner hidden">
+        🔥 New update available. <a href="https://fireclaw.app" target="_blank">Download latest version</a>
+      </div>
+
+      <!-- Password Login -->
+      <div id="login-form-password" class="login-form">
+        <h2>Authentication Required</h2>
+        <p class="help-text">Enter your password to access the dashboard</p>
+        
+        <div class="form-group">
+          <input type="password" id="password-login-input" placeholder="Password" required>
+        </div>
+        
+        <button id="password-login-btn" class="btn btn-primary">Log In</button>
+        
+        <div id="login-password-error" class="error-message hidden"></div>
+        
+        <div class="forgot-link"><button type="button" id="show-recovery-btn" class="btn btn-outline">Forgot password? Use recovery key</button></div>
+      </div>
+
+      <!-- Recovery Form (hidden by default, shown via toggle) -->
+      <div id="login-form-recovery" class="login-form hidden">
+        <h2>Password Recovery</h2>
+        <p class="help-text">Enter the recovery key from <code>recovery-key.txt</code> on the server.<br>Access via SSH: <code>cat ~/fireclaw/dashboard/recovery-key.txt</code></p>
+        
+        <div class="form-group">
+          <input type="text" id="recovery-key-input" placeholder="Recovery Key" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="recovery-new-password" placeholder="New Password (min 8 chars)" required>
+        </div>
+        
+        <button id="recovery-submit-btn" class="btn btn-primary">Reset Password</button>
+        
+        <div id="recovery-error" class="error-message hidden"></div>
+        <div id="recovery-success" class="success-message hidden"></div>
+        
+        <p class="forgot-link"><a href="#" id="back-to-login-btn">Back to login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Screen -->
+  <div id="dashboard-screen" class="screen">
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <img src="fireclaw-logo.png" alt="FireClaw" class="logo-icon-img">
+        <h2>FireClaw</h2>
+      </div>
+      
+      <ul class="nav-menu">
+        <li>
+          <a href="#" data-page="overview" class="nav-link active">
+            📊 Overview
+            <span class="help-icon" data-tooltip="At-a-glance stats on FireClaw activity — fetches proxied, injections detected, and trends">ℹ️</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="audit" class="nav-link">
+            📜 Audit Log
+            <span class="help-icon" data-tooltip="Searchable history of every web fetch proxied through FireClaw with detection details">ℹ️</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="domains" class="nav-link">
+            🌐 Domains
+            <span class="help-icon" data-tooltip="Manage domain trust tiers — trusted domains get lighter scanning, blocked domains are refused">ℹ️</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="config" class="nav-link">
+            ⚙️ Configuration
+            <span class="help-icon" data-tooltip="View and adjust FireClaw proxy settings, alert thresholds, and rate limits">ℹ️</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="threats" class="nav-link">
+            🛡️ Threat Feed
+            <span class="help-icon" data-tooltip="Community-sourced threat intelligence from the FireClaw network">ℹ️</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="alerts" class="nav-link">
+            🚨 Alerts
+            <span class="help-icon" data-tooltip="Recent security alerts with severity levels and detection details">ℹ️</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" data-page="settings" class="nav-link">
+            ⚙️ Settings
+            <span class="help-icon" data-tooltip="Configure FireClaw preferences, privacy settings, and maintenance options">ℹ️</span>
+          </a>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-secondary btn-small">Logout</button>
+      </div>
+    </nav>
+    
+    <main class="main-content">
+      <header class="header">
+        <h1 id="page-title">Overview</h1>
+        <div class="header-actions">
+          <span id="user-email" class="user-email"></span>
+          <button id="refresh-btn" class="btn btn-icon" title="Refresh">🔄</button>
+        </div>
+      </header>
+      
+      <!-- Overview Page -->
+      <div id="page-overview" class="page active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-content">
+              <h3>Total Fetches</h3>
+              <p class="stat-value" id="stat-total-fetches">0</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">🚫</div>
+            <div class="stat-content">
+              <h3>Injections Detected</h3>
+              <p class="stat-value" id="stat-injections">0</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">🛡️</div>
+            <div class="stat-content">
+              <h3>Block Rate</h3>
+              <p class="stat-value" id="stat-block-rate">0%</p>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-content">
+              <h3>Active Alerts</h3>
+              <p class="stat-value" id="stat-alerts">0</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2>7-Day Trend</h2>
+          <div id="trend-chart" class="chart">
+            <canvas id="trend-canvas"></canvas>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2>Top Offending Domains</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Detections</th>
+              </tr>
+            </thead>
+            <tbody id="top-offenders-table">
+              <tr><td colspan="2" class="empty-state">No data available</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Audit Log Page -->
+      <div id="page-audit" class="page">
+        <div class="section">
+          <div class="filters">
+            <input type="text" id="audit-search" placeholder="Search URL or pattern..." class="search-input">
+            <select id="audit-severity-filter" class="filter-select">
+              <option value="">All Severities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+            <input type="text" id="audit-domain-filter" placeholder="Filter by domain..." class="filter-input">
+          </div>
+          
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>URL</th>
+                  <th>Patterns</th>
+                  <th>Action</th>
+                  <th>Severity</th>
+                </tr>
+              </thead>
+              <tbody id="audit-log-table">
+                <tr><td colspan="5" class="empty-state">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="pagination">
+            <button id="audit-prev" class="btn btn-secondary">Previous</button>
+            <span id="audit-page-info">Page 1</span>
+            <button id="audit-next" class="btn btn-secondary">Next</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Domains Page -->
+      <div id="page-domains" class="page">
+        <div class="section">
+          <h2>Add Domain</h2>
+          <div class="form-inline">
+            <input type="text" id="new-domain" placeholder="example.com" class="form-input">
+            <select id="new-domain-tier" class="form-select">
+              <option value="trusted">Trusted</option>
+              <option value="neutral" selected>Neutral</option>
+              <option value="suspicious">Suspicious</option>
+              <option value="blocked">Blocked</option>
+            </select>
+            <button id="add-domain-btn" class="btn btn-primary">Add</button>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="domain-search-container">
+            <input type="text" id="domain-search" placeholder="🔍 Search domains..." class="search-input">
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2>Domain Trust Tiers</h2>
+          
+          <div class="domain-tier accordion">
+            <div class="accordion-header" data-tier="trusted">
+              <div class="accordion-title">
+                <span class="tier-icon">✅</span>
+                <span class="tier-name">Trusted</span>
+                <span class="tier-badge" id="trusted-count">0</span>
+              </div>
+              <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content active" data-tier-content="trusted">
+              <p class="tier-description">Light sanitization applied — known safe domains</p>
+              <ul id="trusted-domains" class="domain-list"></ul>
+            </div>
+          </div>
+          
+          <div class="domain-tier accordion">
+            <div class="accordion-header" data-tier="neutral">
+              <div class="accordion-title">
+                <span class="tier-icon">⚪</span>
+                <span class="tier-name">Neutral</span>
+                <span class="tier-badge" id="neutral-count">0</span>
+              </div>
+              <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content" data-tier-content="neutral">
+              <p class="tier-description">Full security pipeline — standard scanning</p>
+              <ul id="neutral-domains" class="domain-list"></ul>
+            </div>
+          </div>
+          
+          <div class="domain-tier accordion">
+            <div class="accordion-header" data-tier="suspicious">
+              <div class="accordion-title">
+                <span class="tier-icon">⚠️</span>
+                <span class="tier-name">Suspicious</span>
+                <span class="tier-badge" id="suspicious-count">0</span>
+              </div>
+              <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content" data-tier-content="suspicious">
+              <p class="tier-description">Aggressive scanning with alerts — watch closely</p>
+              <ul id="suspicious-domains" class="domain-list"></ul>
+            </div>
+          </div>
+          
+          <div class="domain-tier accordion">
+            <div class="accordion-header" data-tier="blocked">
+              <div class="accordion-title">
+                <span class="tier-icon">🚫</span>
+                <span class="tier-name">Blocked</span>
+                <span class="tier-badge" id="blocked-count">0</span>
+              </div>
+              <span class="accordion-toggle">▼</span>
+            </div>
+            <div class="accordion-content" data-tier-content="blocked">
+              <p class="tier-description">Refused with alerts — no traffic allowed</p>
+              <ul id="blocked-domains" class="domain-list"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Configuration Page -->
+      <div id="page-config" class="page">
+        <div class="section">
+          <h2>FireClaw Configuration</h2>
+          <div class="config-toolbar">
+            <button id="config-edit-btn" class="btn btn-secondary btn-small">✏️ Edit</button>
+            <button id="config-save-btn" class="btn btn-primary btn-small hidden">💾 Save</button>
+            <button id="config-cancel-btn" class="btn btn-secondary btn-small hidden">Cancel</button>
+            <span id="config-status" class="settings-status"></span>
+          </div>
+          <div id="config-warning" class="warning-banner">
+            ⚠️ Modifying these settings directly may cause unexpected behavior or make the device inaccessible. Only make changes if you understand the impact.
+          </div>
+          
+          <div class="config-preview">
+            <pre id="config-display">Loading...</pre>
+            <textarea id="config-editor" class="config-editor hidden" spellcheck="false"></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Threat Feed Page -->
+      <div id="page-threats" class="page">
+        <div class="section">
+          <h2>Network Statistics</h2>
+          <div class="stats-grid">
+            <div class="stat-card small">
+              <h4>Active Instances</h4>
+              <p class="stat-value" id="threat-instances">-</p>
+            </div>
+            <div class="stat-card small">
+              <h4>Blocks This Week</h4>
+              <p class="stat-value" id="threat-blocks">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <h2>Top Network Threats</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pattern</th>
+                <th>Detections</th>
+              </tr>
+            </thead>
+            <tbody id="threat-patterns-table">
+              <tr><td colspan="2" class="empty-state">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="section">
+          <h2>Recent Community Patterns</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pattern</th>
+                <th>First Seen</th>
+                <th>Severity</th>
+                <th>Detections</th>
+              </tr>
+            </thead>
+            <tbody id="threat-recent-table">
+              <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="section">
+          <h2>Blocked Domains</h2>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Reason</th>
+                <th>Added</th>
+              </tr>
+            </thead>
+            <tbody id="threat-domains-table">
+              <tr><td colspan="3" class="empty-state">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Alerts Page -->
+      <div id="page-alerts" class="page">
+        <div class="section">
+          <h2>Recent Alerts</h2>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Severity</th>
+                  <th>Message</th>
+                  <th>URL</th>
+                </tr>
+              </thead>
+              <tbody id="alerts-table">
+                <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Settings Page -->
+      <div id="page-settings" class="page">
+        <!-- Authentication Method -->
+        <div class="section settings-section">
+          <h2>🔐 Authentication</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Authentication Method</label>
+                <p class="setting-description">Password-based authentication. Codes are delivered via your OpenClaw messaging platform.</p>
+              </div>
+              <div class="setting-control">
+                <span class="badge">Password</span>
+              </div>
+            </div>
+            <!-- Password settings -->
+            <div id="settings-auth-password" class="auth-settings-group">
+              <div class="setting-row">
+                <div class="setting-info">
+                  <label class="setting-label" for="setting-new-password">New Password</label>
+                  <p class="setting-description">Leave blank to keep current password</p>
+                </div>
+                <div class="setting-control">
+                  <input type="password" id="setting-new-password" class="text-input" placeholder="New password" minlength="8">
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="setting-info">
+                  <label class="setting-label" for="setting-confirm-password">Confirm Password</label>
+                </div>
+                <div class="setting-control">
+                  <input type="password" id="setting-confirm-password" class="text-input" placeholder="Confirm password">
+                </div>
+              </div>
+            </div>
+            <div class="setting-row">
+              <button id="save-auth-settings-btn" class="btn btn-primary btn-small">Save Authentication Settings</button>
+              <span id="auth-settings-status" class="settings-status"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Privacy & Data Sharing - MOST PROMINENT -->
+        <div class="section settings-section privacy-section">
+          <h2>🔒 Privacy & Data Sharing</h2>
+          <div class="settings-card prominent">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Share anonymized threat data with the FireClaw community</label>
+                <p class="setting-description">
+                  When enabled, FireClaw sends anonymized detection data (domain name and pattern type only) to fireclaw.app. 
+                  <strong>No web content, personal data, or browsing history is ever shared.</strong>
+                </p>
+              </div>
+              <div class="setting-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-share-data">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="privacy-status">
+              <span id="privacy-status-indicator" class="status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-text">Not sharing data</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Supabase (Threat Feed) Configuration -->
+        <div class="section settings-section">
+          <h2>🗄️ Supabase (Threat Feed)</h2>
+          <div class="settings-card">
+            <p class="setting-description" style="margin-bottom:16px">Configure your Supabase connection for community threat feed sharing. Get your project URL and anon key from <a href="https://supabase.com" target="_blank" rel="noopener">supabase.com</a>.</p>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-supabase-url">Supabase URL</label>
+                <p class="setting-description">Your Supabase project URL (e.g. https://abc.supabase.co)</p>
+              </div>
+              <div class="setting-control">
+                <input type="text" id="setting-supabase-url" class="text-input" placeholder="https://your-project.supabase.co" autocomplete="off" style="width:280px">
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-supabase-key">Supabase Anon Key</label>
+                <p class="setting-description">Your Supabase anon/publishable key. Stored locally — never shared.</p>
+              </div>
+              <div class="setting-control api-key-control">
+                <input type="password" id="setting-supabase-key" class="text-input api-key-input" placeholder="Enter anon key" autocomplete="off">
+                <button type="button" id="toggle-supabase-key-btn" class="btn btn-icon" title="Show/hide Supabase key">👁️</button>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Supabase Status</label>
+              </div>
+              <div class="setting-control">
+                <span id="supabase-key-status" class="status-indicator">
+                  <span class="status-dot"></span>
+                  <span class="status-text">Not configured</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LLM Configuration -->
+        <div class="section settings-section">
+          <h2>🤖 LLM Configuration</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-llm-provider">LLM Provider</label>
+                <p class="setting-description">Choose the AI provider for Stage 3 summarization</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-llm-provider" class="settings-select">
+                  <option value="anthropic">Anthropic (Claude)</option>
+                  <option value="google">Google (Gemini)</option>
+                  <option value="openai">OpenAI (GPT)</option>
+                  <option value="openrouter">OpenRouter (Multi-model)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-llm-model">Model</label>
+                <p class="setting-description">Select the specific model for content analysis</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-llm-model" class="settings-select">
+                  <!-- Populated dynamically based on provider -->
+                </select>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-llm-api-key">API Key</label>
+                <p class="setting-description">Your API key for the selected provider. Stored locally on this device only — never shared.</p>
+              </div>
+              <div class="setting-control api-key-control">
+                <input type="password" id="setting-llm-api-key" class="text-input api-key-input" placeholder="Enter API key" autocomplete="off">
+                <button type="button" id="toggle-api-key-btn" class="btn btn-icon" title="Show/hide API key">👁️</button>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">API Key Status</label>
+              </div>
+              <div class="setting-control">
+                <span id="api-key-status" class="status-indicator">
+                  <span class="status-dot"></span>
+                  <span class="status-text">Not configured</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Connection Status</label>
+                <p class="setting-description">Test connectivity to your LLM provider</p>
+              </div>
+              <div class="setting-control">
+                <span id="llm-connection-status" class="status-indicator">
+                  <span class="status-dot"></span>
+                  <span class="status-text">Not tested</span>
+                </span>
+                <button id="test-llm-btn" class="btn btn-secondary btn-small" style="margin-left: 12px">🧪 Test</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Alert Preferences -->
+        <div class="section settings-section">
+          <h2>🔔 Alert Preferences</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-severity-threshold">Alert Severity Threshold</label>
+                <p class="setting-description">Only show alerts at or above this severity level</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-severity-threshold" class="settings-select">
+                  <option value="low">Low and above</option>
+                  <option value="medium">Medium and above</option>
+                  <option value="high">High and above</option>
+                  <option value="critical">Critical only</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Digest Mode</label>
+                <p class="setting-description">Batch alerts into hourly summaries instead of individual notifications</p>
+              </div>
+              <div class="setting-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-digest-mode">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Spending Alerts
+                  <span class="help-icon" data-tooltip="Get notified via your OpenClaw messaging platform when API spending occurs, including cost and model name">?</span>
+                </label>
+                <p class="setting-description">Notify when daily API spending exceeds a warning threshold (via OpenClaw messaging)</p>
+              </div>
+              <div class="setting-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-spending-alerts">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-spending-warn-pct">Daily Limit Warning (%)</label>
+                <p class="setting-description">Alert when spending reaches this percentage of daily cost cap</p>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="setting-spending-warn-pct" class="number-input" min="10" max="100" step="5" value="80">
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Quiet Hours</label>
+                <p class="setting-description">Suppress non-critical alerts during these hours</p>
+              </div>
+              <div class="setting-control quiet-hours">
+                <input type="time" id="setting-quiet-start" class="time-input">
+                <span class="time-separator">to</span>
+                <input type="time" id="setting-quiet-end" class="time-input">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Rate Limits & Cost -->
+        <div class="section settings-section">
+          <h2>💰 Rate Limits & Cost</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-max-fetches-hour">Max Fetches per Hour</label>
+                <p class="setting-description">Throttle requests to prevent runaway costs</p>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="setting-max-fetches-hour" class="number-input" min="1" max="10000" step="1">
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-max-fetches-day">Max Fetches per Day</label>
+                <p class="setting-description">Daily request limit</p>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="setting-max-fetches-day" class="number-input" min="1" max="100000" step="1">
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-daily-cost-cap">Daily Cost Cap (cents)</label>
+                <p class="setting-description">Stop processing if daily API costs exceed this amount</p>
+              </div>
+              <div class="setting-control">
+                <input type="number" id="setting-daily-cost-cap" class="number-input" min="0" step="1">
+              </div>
+            </div>
+            
+            <div class="usage-stats">
+              <h4>Current Usage</h4>
+              <div class="usage-grid">
+                <div class="usage-item">
+                  <span class="usage-label">Today:</span>
+                  <span class="usage-value" id="usage-today">-</span>
+                </div>
+                <div class="usage-item">
+                  <span class="usage-label">This Hour:</span>
+                  <span class="usage-value" id="usage-hour">-</span>
+                </div>
+                <div class="usage-item">
+                  <span class="usage-label">Estimated Cost:</span>
+                  <span class="usage-value" id="usage-cost">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Domain Defaults -->
+        <div class="section settings-section">
+          <h2>🌐 Domain Defaults</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-default-trust">Default Trust Tier for Unknown Domains</label>
+                <p class="setting-description">New domains start in this tier</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-default-trust" class="settings-select">
+                  <option value="neutral">Neutral (Standard Scanning)</option>
+                  <option value="suspicious">Suspicious (Aggressive Scanning)</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-auto-block-threshold">
+                  Auto-Blocklist Threshold
+                  <span class="help-icon" data-tooltip="Number of injection detections before a domain is automatically blocked. 0 = disabled (never auto-block). 1 = strictest (block after first detection). Higher values are more lenient.">?</span>
+                </label>
+                <p class="setting-description">Automatically block domains after this many detections (0 = disabled, 1 = strictest)</p>
+              </div>
+              <div class="setting-control">
+                <div class="slider-control">
+                  <input type="range" id="setting-auto-block-threshold" class="range-slider" min="0" max="10" step="1" value="0">
+                  <span id="auto-block-threshold-label" class="slider-label">Off</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dashboard Preferences -->
+        <div class="section settings-section">
+          <h2>📊 Dashboard Preferences</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-refresh-interval">Auto-Refresh Interval</label>
+                <p class="setting-description">How often the dashboard updates automatically</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-refresh-interval" class="settings-select">
+                  <option value="5000">5 seconds</option>
+                  <option value="10000">10 seconds</option>
+                  <option value="30000">30 seconds</option>
+                  <option value="60000">60 seconds</option>
+                  <option value="0">Off</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-timezone">Timezone</label>
+                <p class="setting-description">Display timestamps in this timezone</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-timezone" class="settings-select">
+                  <option value="local">Local Time</option>
+                  <option value="UTC">UTC</option>
+                  <option value="America/New_York">Eastern (US)</option>
+                  <option value="America/Chicago">Central (US)</option>
+                  <option value="America/Denver">Mountain (US)</option>
+                  <option value="America/Los_Angeles">Pacific (US)</option>
+                  <option value="Europe/London">London</option>
+                  <option value="Europe/Paris">Paris</option>
+                  <option value="Asia/Tokyo">Tokyo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Maintenance -->
+        <div class="section settings-section">
+          <h2>🛠️ Maintenance</h2>
+          <div class="settings-card">
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label" for="setting-log-retention">Audit Log Retention</label>
+                <p class="setting-description">Automatically delete logs older than this period</p>
+              </div>
+              <div class="setting-control">
+                <select id="setting-log-retention" class="settings-select">
+                  <option value="30">30 days</option>
+                  <option value="60">60 days</option>
+                  <option value="90">90 days</option>
+                  <option value="180">180 days</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="setting-row maintenance-actions">
+              <div class="action-group">
+                <button id="export-audit-btn" class="btn btn-secondary btn-action">
+                  📥 Export Audit Log
+                </button>
+                <button id="export-domains-btn" class="btn btn-secondary btn-action">
+                  📥 Export Domain Lists
+                </button>
+              </div>
+            </div>
+            
+            <div class="setting-row">
+              <div class="setting-info">
+                <label class="setting-label">Auto-Check for Updates</label>
+                <p class="setting-description">Check for new versions once daily. A banner will appear on the login screen if an update is found.</p>
+              </div>
+              <div class="setting-control">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-auto-update-check">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+            
+            <div class="setting-row version-info">
+              <div class="version-display">
+                <span class="version-label">FireClaw Version:</span>
+                <span class="version-number" id="fireclaw-version">-</span>
+              </div>
+              <button id="check-updates-btn" class="btn btn-secondary btn-action">
+                🔄 Check for Updates
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Save Button -->
+        <div class="settings-footer">
+          <button id="save-settings-btn" class="btn btn-primary btn-large">
+            💾 Save Settings
+          </button>
+          <span id="settings-status" class="settings-status"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="app.js?v=20260217d"></script>
+</body>
+</html>

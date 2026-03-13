@@ -1,0 +1,10 @@
+{"timestamp":"2026-02-14T10:15:32.123Z","url":"https://malicious-site.com/inject","patternsDetected":["IGNORE PREVIOUS","eval("],"action":"block","severity":"critical","alert":true}
+{"timestamp":"2026-02-14T10:20:15.456Z","url":"https://safe-news.com/article","patternsDetected":[],"action":"allow","severity":"low","alert":false}
+{"timestamp":"2026-02-14T10:25:42.789Z","url":"https://sketchy-blog.net/page","patternsDetected":["SYSTEM:"],"action":"sanitize","severity":"medium","alert":false}
+{"timestamp":"2026-02-14T11:05:11.234Z","url":"https://phishing-attempt.com/login","patternsDetected":["<script>","fetch("],"action":"block","severity":"critical","alert":true}
+{"timestamp":"2026-02-14T11:30:22.567Z","url":"https://wikipedia.org/wiki/Security","patternsDetected":[],"action":"allow","severity":"low","alert":false}
+{"timestamp":"2026-02-14T12:10:45.890Z","url":"https://suspicious-link.biz/offer","patternsDetected":["NEW INSTRUCTION:"],"action":"block","severity":"high","alert":true}
+{"timestamp":"2026-02-14T13:22:33.123Z","url":"https://github.com/user/repo","patternsDetected":[],"action":"allow","severity":"low","alert":false}
+{"timestamp":"2026-02-14T14:05:18.456Z","url":"https://evil-domain.net/payload","patternsDetected":["IGNORE PREVIOUS","eval(","<script>"],"action":"block","severity":"critical","alert":true}
+{"timestamp":"2026-02-14T15:40:29.789Z","url":"https://news-aggregator.com/headlines","patternsDetected":[],"action":"allow","severity":"low","alert":false}
+{"timestamp":"2026-02-14T16:15:55.012Z","url":"https://malware-host.org/download","patternsDetected":["data:text/html"],"action":"block","severity":"high","alert":true}

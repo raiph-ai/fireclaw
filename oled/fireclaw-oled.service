@@ -1,0 +1,20 @@
+[Unit]
+Description=FireClaw OLED Display Service
+After=network.target
+
+[Service]
+Type=simple
+User=admin
+WorkingDirectory=/path/to
+ExecStart=/usr/bin/python3 /path/to/fireclaw_display.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

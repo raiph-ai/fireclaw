@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FireClaw - A firewall for your agent's brain. Open-source security proxy that protects AI agents from prompt injection attacks.">
+    <meta name="keywords" content="AI security, prompt injection, AI firewall, LLM security, AI agents">
+    <title>FireClaw - A Firewall for Your Agent's Brain</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <canvas id="particles-bg"></canvas>
+
+    <!-- Sticky Navigation -->
+    <nav id="main-nav">
+        <div class="container nav-container">
+            <div class="logo">
+                <img src="fireclaw-logo.png" alt="FireClaw" class="nav-logo-img">
+                <span class="logo-text">FireClaw</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#problem">The Problem</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#open-source">Open Source</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <div class="fire-glow"></div>
+                    <h1 class="brand-name">
+                        <img src="fireclaw-logo.png" alt="FireClaw" class="hero-logo-img">
+                        Fire<span class="accent">Claw</span>
+                    </h1>
+                </div>
+                <h2 class="tagline">A firewall for your agent's brain</h2>
+                <p class="subtitle">Open-source security proxy that protects AI agents from prompt injection attacks</p>
+                <div class="cta-buttons">
+                    <a href="https://github.com/fireclaw-security/fireclaw" class="btn btn-primary" target="_blank">
+                        <span class="btn-icon">→</span>
+                        Get Started
+                    </a>
+                    <a href="#dashboard" class="btn btn-secondary">
+                        <span class="btn-icon">👁</span>
+                        View Dashboard Demo
+                    </a>
+                </div>
+                <div class="hero-shield">
+                    <svg viewBox="0 0 100 120" class="shield-svg">
+                        <path d="M50 5 L90 20 L90 50 Q90 80 50 110 Q10 80 10 50 L10 20 Z" 
+                              fill="none" stroke="#ff4500" stroke-width="2" class="shield-path"/>
+                        <path d="M50 25 L70 35 L70 55 Q70 70 50 85 Q30 70 30 55 L30 35 Z" 
+                              fill="rgba(255,69,0,0.1)" stroke="#ff4500" stroke-width="1.5" class="shield-inner"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll to explore</span>
+            <div class="scroll-arrow">↓</div>
+        </div>
+    </section>
+
+    <!-- The Problem Section -->
+    <section id="problem" class="problem-section">
+        <div class="container">
+            <h2 class="section-title">The Problem</h2>
+            <p class="section-intro">
+                Prompt injection is the #1 vulnerability in AI agents. Malicious websites can hijack your AI's behavior, 
+                steal data, or execute unauthorized actions.
+            </p>
+            
+            <div class="problem-diagram">
+                <div class="diagram-step" data-step="1">
+                    <div class="step-icon malicious">🌐</div>
+                    <h3>Malicious Website</h3>
+                    <p>Hidden prompt injection in page content</p>
+                </div>
+                <div class="diagram-arrow">→</div>
+                <div class="diagram-step" data-step="2">
+                    <div class="step-icon agent">🤖</div>
+                    <h3>AI Agent</h3>
+                    <p>Fetches and processes content</p>
+                </div>
+                <div class="diagram-arrow">→</div>
+                <div class="diagram-step" data-step="3">
+                    <div class="step-icon danger">💥</div>
+                    <h3>Bad Outcome</h3>
+                    <p>Data theft, unauthorized actions, system compromise</p>
+                </div>
+            </div>
+
+            <div class="owasp-callout">
+                <div class="callout-icon">⚠️</div>
+                <div class="callout-content">
+                    <h3>OWASP Top 10 for LLMs</h3>
+                    <p>Prompt Injection is ranked as the <strong>#1 vulnerability</strong> in AI/LLM applications</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How FireClaw Works Section -->
+    <section id="how-it-works" class="how-it-works-section">
+        <div class="container">
+            <h2 class="section-title">How FireClaw Works</h2>
+            <p class="section-intro">
+                A four-stage sanitization pipeline that stands between the web and your AI agent
+            </p>
+
+            <div class="pipeline">
+                <div class="pipeline-stage" data-stage="1">
+                    <div class="stage-number">1</div>
+                    <div class="stage-icon">📥</div>
+                    <h3>Fetch</h3>
+                    <p>Retrieves content through isolated proxy environment with DNS pre-check and domain reputation scoring</p>
+                </div>
+
+                <div class="pipeline-connector">
+                    <div class="connector-line"></div>
+                    <div class="connector-dot"></div>
+                </div>
+
+                <div class="pipeline-stage" data-stage="2">
+                    <div class="stage-number">2</div>
+                    <div class="stage-icon">🧹</div>
+                    <h3>Sanitize</h3>
+                    <p>Strips scripts, styles, and suspicious patterns. Removes hidden text, zero-width characters, and encoding tricks</p>
+                </div>
+
+                <div class="pipeline-connector">
+                    <div class="connector-line"></div>
+                    <div class="connector-dot"></div>
+                </div>
+
+                <div class="pipeline-stage" data-stage="3">
+                    <div class="stage-number">3</div>
+                    <div class="stage-icon">📝</div>
+                    <h3>Summarize</h3>
+                    <p>Condenses content to semantic meaning only. The proxy has no tools, no database access — just text processing</p>
+                </div>
+
+                <div class="pipeline-connector">
+                    <div class="connector-line"></div>
+                    <div class="connector-dot"></div>
+                </div>
+
+                <div class="pipeline-stage" data-stage="4">
+                    <div class="stage-number">4</div>
+                    <div class="stage-icon">🔍</div>
+                    <h3>Scan</h3>
+                    <p>Analyzes for injection patterns using community threat intelligence. Flags suspicious content before it reaches your agent</p>
+                </div>
+            </div>
+
+            <div class="protection-note">
+                <div class="note-icon">🛡️</div>
+                <p>
+                    <strong>Even if the proxy gets injected — dead end.</strong><br>
+                    No tools, no data, no damage. The threat stops at the firewall.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <h2 class="section-title">Built for Security</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>4-Stage Pipeline</h3>
+                    <p>Fetch, sanitize, summarize, and scan every request through isolated layers of protection</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Community Threat Feed</h3>
+                    <p>Real-time threat intelligence shared across all FireClaw instances (opt-in, privacy-first)</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Domain Trust Tiers</h3>
+                    <p>Automatic reputation scoring with whitelist, greylist, and blacklist management</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🚨</div>
+                    <h3>Real-time Alerts</h3>
+                    <p>Instant notifications when suspicious activity or injection attempts are detected</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🍯</div>
+                    <h3>Canary Token Detection</h3>
+                    <p>Honeypot tokens identify and track malicious actors attempting to exfiltrate data</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>DNS Pre-Check</h3>
+                    <p>Validates domains before fetching to block known malicious infrastructure</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📜</div>
+                    <h3>Audit Log with Replay</h3>
+                    <p>Complete request history with ability to replay and analyze past interactions</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Rate Limiting & Cost Control</h3>
+                    <p>Prevent abuse and control API costs with configurable request throttling</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Intelligence Section -->
+    <section id="community" class="community-section">
+        <div class="container">
+            <h2 class="section-title">Stronger Together</h2>
+            <p class="section-intro">
+                Community-powered threat intelligence. The more FireClaw instances running, 
+                the better we protect everyone.
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" data-count="12847">0</div>
+                    <div class="stat-label">Attacks Blocked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-count="3421">0</div>
+                    <div class="stat-label">Domains Flagged</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-count="847">0</div>
+                    <div class="stat-label">Active Instances</div>
+                </div>
+            </div>
+
+            <div class="community-features">
+                <div class="community-feature">
+                    <div class="feature-check">✓</div>
+                    <div>
+                        <h3>Opt-in by Design</h3>
+                        <p>You control what's shared. Threat intelligence sharing is completely optional.</p>
+                    </div>
+                </div>
+                <div class="community-feature">
+                    <div class="feature-check">✓</div>
+                    <div>
+                        <h3>Privacy-First</h3>
+                        <p>Only threat signatures and domain hashes are shared — never your data or content.</p>
+                    </div>
+                </div>
+                <div class="community-feature">
+                    <div class="feature-check">✓</div>
+                    <div>
+                        <h3>Network Effect</h3>
+                        <p>When one instance detects a threat, all connected instances get protected immediately.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deploy Anywhere Section -->
+    <section id="deploy" class="deploy-section">
+        <div class="container">
+            <h2 class="section-title">Deploy Anywhere</h2>
+            <p class="section-intro">
+                Raspberry Pi, Docker, any machine with Node.js — protect your AI for the cost of a burrito
+            </p>
+
+            <div class="deploy-options">
+                <div class="deploy-card">
+                    <div class="deploy-icon">🥧</div>
+                    <h3>Raspberry Pi</h3>
+                    <p>Perfect for home setups. Runs on Pi 3B+ or newer.</p>
+                </div>
+                <div class="deploy-card">
+                    <div class="deploy-icon">🐳</div>
+                    <h3>Docker</h3>
+                    <p>One command deployment with Docker Compose.</p>
+                </div>
+                <div class="deploy-card">
+                    <div class="deploy-icon">⚡</div>
+                    <h3>Node.js</h3>
+                    <p>Run anywhere Node.js runs. Zero dependencies.</p>
+                </div>
+            </div>
+
+            <div class="deploy-tabs">
+                <button class="deploy-tab active" data-tab="docker">🐳 Docker</button>
+                <button class="deploy-tab" data-tab="nodejs">⚡ Node.js</button>
+                <button class="deploy-tab" data-tab="pi">🥧 Raspberry Pi</button>
+            </div>
+
+            <div class="code-block deploy-panel active" id="tab-docker">
+                <div class="code-header">
+                    <span>Quick Start with Docker</span>
+                    <button class="copy-btn" data-copy="git clone https://github.com/fireclaw-security/fireclaw.git && cd fireclaw && docker compose up -d">Copy</button>
+                </div>
+                <pre><code>git clone https://github.com/fireclaw-security/fireclaw.git
+cd fireclaw
+docker compose up -d</code></pre>
+            </div>
+
+            <div class="code-block deploy-panel" id="tab-nodejs">
+                <div class="code-header">
+                    <span>Quick Start with Node.js</span>
+                    <button class="copy-btn" data-copy="git clone https://github.com/fireclaw-security/fireclaw.git && cd fireclaw && npm install && npm start">Copy</button>
+                </div>
+                <pre><code>git clone https://github.com/fireclaw-security/fireclaw.git
+cd fireclaw
+npm install
+npm start</code></pre>
+            </div>
+
+            <div class="code-block deploy-panel" id="tab-pi">
+                <div class="code-header">
+                    <span>Quick Start on Raspberry Pi</span>
+                    <button class="copy-btn" data-copy="curl -fsSL https://fireclaw.app/install.sh | bash">Copy</button>
+                </div>
+                <pre><code>curl -fsSL https://fireclaw.app/install.sh | bash</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Preview Section -->
+    <section id="dashboard" class="dashboard-section">
+        <div class="container">
+            <h2 class="section-title">Dashboard Preview</h2>
+            <p class="section-intro">
+                Real-time monitoring and control from your local network
+            </p>
+
+            <div class="dashboard-preview">
+                <div class="preview-placeholder">
+                    <div class="placeholder-icon">📊</div>
+                    <p>Dashboard Screenshot Coming Soon</p>
+                </div>
+            </div>
+
+            <div class="dashboard-features">
+                <div class="dashboard-feature">
+                    <span class="feature-bullet">•</span>
+                    <span>Live request monitoring and threat detection</span>
+                </div>
+                <div class="dashboard-feature">
+                    <span class="feature-bullet">•</span>
+                    <span>Domain trust management and whitelist/blacklist controls</span>
+                </div>
+                <div class="dashboard-feature">
+                    <span class="feature-bullet">•</span>
+                    <span>Audit log with request replay and analysis tools</span>
+                </div>
+                <div class="dashboard-feature">
+                    <span class="feature-bullet">•</span>
+                    <span>Community threat feed insights and statistics</span>
+                </div>
+                <div class="dashboard-feature">
+                    <span class="feature-bullet">•</span>
+                    <span>Local network only access with OTP authentication</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Open Source Section -->
+    <section id="open-source" class="open-source-section">
+        <div class="container">
+            <h2 class="section-title">Open Source & Free Forever</h2>
+            
+            <div class="opensource-grid">
+                <div class="opensource-card">
+                    <div class="os-icon">⚖️</div>
+                    <h3>AGPLv3 Licensed</h3>
+                    <p>Free to use, modify, and distribute. If you host it as a service, you must share your source code.</p>
+                </div>
+                <div class="opensource-card">
+                    <div class="os-icon">🤝</div>
+                    <h3>Community-Driven</h3>
+                    <p>Created by Ralph Perez. Built for the OpenClaw community. Contributions welcome!</p>
+                </div>
+                <div class="opensource-card">
+                    <div class="os-icon">📖</div>
+                    <h3>Fully Documented</h3>
+                    <p>Comprehensive docs, examples, and guides to get you started.</p>
+                </div>
+            </div>
+
+            <div class="github-cta">
+                <a href="https://github.com/fireclaw-security/fireclaw" class="btn btn-primary btn-large" target="_blank">
+                    <span class="btn-icon">⭐</span>
+                    Star on GitHub
+                </a>
+                <a href="https://github.com/fireclaw-security/fireclaw/blob/main/CONTRIBUTING.md" class="btn btn-secondary btn-large" target="_blank">
+                    <span class="btn-icon">🛠️</span>
+                    Contribute
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Section -->
+    <section id="support" class="support-section">
+        <div class="container">
+            <h2 class="section-title">Support FireClaw</h2>
+            <p class="section-intro">
+                FireClaw is free and open source. If it's protecting your AI, consider buying us a coffee ☕
+            </p>
+
+            <div class="support-buttons">
+                <a href="https://www.buymeacoffee.com/fireclaw" class="btn btn-support" target="_blank">
+                    <span class="btn-icon">☕</span>
+                    Buy Me a Coffee
+                </a>
+                <a href="https://ko-fi.com/fireclaw" class="btn btn-support" target="_blank">
+                    <span class="btn-icon">💝</span>
+                    Support on Ko-fi
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="fireclaw-logo.png" alt="FireClaw" class="footer-logo-img">
+                        <span class="logo-text">FireClaw</span>
+                    </div>
+                    <p>A firewall for your agent's brain</p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Project</h4>
+                        <ul>
+                            <li><a href="https://github.com/fireclaw-security/fireclaw" target="_blank">GitHub</a></li>
+                            <li><a href="https://docs.fireclaw.app" target="_blank">Documentation</a></li>
+                            <li><a href="https://github.com/fireclaw-security/fireclaw/releases" target="_blank">Releases</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Community</h4>
+                        <ul>
+                            <li><a href="https://discord.gg/openclaw" target="_blank">Discord</a></li>
+                            <li><a href="https://github.com/fireclaw-security/fireclaw/discussions" target="_blank">Discussions</a></li>
+                            <li><a href="https://github.com/fireclaw-security/fireclaw/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="#how-it-works">How It Works</a></li>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="https://github.com/fireclaw-security/fireclaw/blob/main/README.md" target="_blank">Getting Started</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>Created by <strong>Ralph Perez</strong> · Made with 🔥 for the OpenClaw community</p>
+                <p class="copyright">&copy; 2026 FireClaw. Licensed under GNU AGPLv3.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

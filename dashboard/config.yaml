@@ -1,0 +1,49 @@
+# FireClaw Dashboard Configuration
+
+server:
+  port: 8420
+  bindAddress: "0.0.0.0"
+  # Allow only local/private network IPs
+  allowedNetworks:
+    - "127.0.0.1/32"      # localhost
+    - "192.168.0.0/16"    # private network
+    - "10.0.0.0/8"        # private network
+    - "172.16.0.0/12"     # private network
+    - "::1/128"           # IPv6 localhost
+    - "fc00::/7"          # IPv6 private
+
+auth:
+  # Admin email for OTP verification (must match to get OTP)
+  adminEmail: "raiph@scarwear.com"
+  # OTP expiry in milliseconds (5 minutes)
+  otpExpiry: 300000
+  # Session secret - CHANGE THIS IN PRODUCTION
+  sessionSecret: "change-this-to-a-random-secret-in-production"
+  # Session max age in milliseconds (24 hours)
+  sessionMaxAge: 86400000
+  
+  # OTP delivery via OpenClaw messaging (Slack, WhatsApp, Telegram, etc.)
+  # Set these or use env vars OPENCLAW_URL and OPENCLAW_TOKEN
+  openclawUrl: ""        # e.g., "http://192.168.0.100:3000"
+  openclawToken: ""      # OpenClaw gateway token
+  
+  # Alternative: generic webhook for OTP delivery
+  # Set via env var OTP_WEBHOOK_URL or here
+  otpWebhookUrl: ""      # e.g., Slack incoming webhook URL
+
+fireclaw:
+  # Path to FireClaw audit log (JSONL format)
+  auditLogPath: "../logs/fireclaw-audit.jsonl"
+  # Path to FireClaw config (for reading/writing settings)
+  configPath: "../config.yaml"
+  # Path to domain trust tiers
+  domainTiersPath: "../data/domain-tiers.json"
+  # Community threat feed API
+  threatFeedUrl: "https://api.fireclaw.app/v1/threats"
+  threatFeedApiKey: ""  # optional
+
+dashboard:
+  # Dashboard title
+  title: "FireClaw Dashboard"
+  # Refresh interval for live stats (milliseconds)
+  refreshInterval: 5000

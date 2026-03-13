@@ -1,0 +1,235 @@
+# FireClaw Configuration
+# Production-ready settings for prompt injection defense
+
+fireclaw:
+  # ========================================
+  # Core Settings
+  # ========================================
+  enabled: true
+  version: "1.0.0"
+  
+  # LLM model for Stage 3 summarization (overridden by dashboard settings if configured)
+  model: "anthropic/claude-haiku-4"
+  
+  # ========================================
+  # Rate Limiting & Cost Controls
+  # ========================================
+  rate_limiting:
+    # Max fetches per time window
+    max_fetches_per_minute: 10
+    max_fetches_per_hour: 100
+    max_fetches_per_day: 500
+    
+    # Max searches per time window
+    max_searches_per_minute: 5
+    max_searches_per_hour: 50
+    max_searches_per_day: 200
+    
+    # Cost controls (USD)
+    max_cost_per_day: 5.00
+    cost_per_fetch_estimate: 0.01  # Rough estimate for LLM summarization
+    
+    # Auto-throttle when approaching limits
+    throttle_at_percent: 80  # Start warning at 80% of limit
+    
+    # Block when limits exceeded
+    hard_limit: true
+  
+  # ========================================
+  # Pipeline Stage Settings
+  # ========================================
+  pipeline:
+    # Stage 1: DNS/Blocklist Pre-check
+    dns_check:
+      enabled: true
+      timeout_ms: 2000
+      sources:
+        - name: "fireclaw_community"
+          url: "https://fireclaw.app/api/v1/blocklist"
+          enabled: true
+          cache_ttl_hours: 6
+        - name: "urlhaus"
+          url: "https://urlhaus.abuse.ch/downloads/text/"
+          enabled: true
+          cache_ttl_hours: 24
+        - name: "phishtank"
+          url: "http://data.phishtank.com/data/online-valid.json"
+          enabled: true
+          cache_ttl_hours: 12
+        - name: "openphish"
+          url: "https://openphish.com/feed.txt"
+          enabled: true
+          cache_ttl_hours: 24
+      
+      # Action when URL found in blocklist
+      action_on_block: "reject"  # reject | warn | allow
+    
+    # Stage 2: Structural Sanitization
+    structural:
+      max_input_chars: 12000
+      strip_html: true
+      strip_scripts: true
+      strip_styles: true
+      normalize_unicode: true
+      remove_zero_width: true
+      collapse_whitespace: true
+    
+    # Stage 3: LLM Summarization
+    summarization:
+      max_input_chars: 8000  # Input to LLM (post-sanitization)
+      max_output_tokens: 1000
+      temperature: 0.0  # Deterministic
+      system_prompt_file: "proxy-prompt.md"
+      
+      # Canary token injection
+      canary_tokens:
+        enabled: true
+        inject_count: 3  # Number of unique canaries per fetch
+        detection_threshold: 1  # Alert if N+ canaries appear in output/actions
+    
+    # Stage 4: Output Scan
+    output:
+      max_output_chars: 4000
+      strip_suspicious: true
+      flag_threshold: 3  # Severity score to flag output
+      prepend_warning: true  # Add warning header to flagged output
+  
+  # ========================================
+  # Domain Trust Tiers
+  # ========================================
+  trust_tiers:
+    # Tier affects pipeline intensity
+    # trusted: Skip sanitization, direct fetch
+    # neutral: Full 4-stage pipeline
+    # suspicious: Aggressive sanitization + auto-alert
+    # blocked: Refuse to fetch + alert
+    
+    default_tier: "neutral"
+    
+    # Pre-configured domain lists
+    trusted:
+      - "wikipedia.org"
+      - "github.com"
+      - "docs.python.org"
+      - "nodejs.org"
+      - "developer.mozilla.org"
+    
+    suspicious: []
+    
+    blocked:
+      - "example-malicious.com"
+    
+    # Allow runtime updates via API
+    allow_runtime_updates: true
+  
+  # ========================================
+  # Alert System
+  # ========================================
+  alerts:
+    enabled: true
+    
+    # Alert channel (Slack, Discord, email, etc.)
+    # Format: "slack:C123456789" or "discord:channel_id" or "email:user@example.com"
+    channel: null  # Set this to enable alerts
+    
+    # Minimum severity to trigger alert
+    # Options: low | medium | high
+    threshold: "medium"
+    
+    # Digest mode: batch alerts instead of real-time
+    digest_mode: false
+    digest_interval_minutes: 60
+    
+    # Anti-injection hardening for alert messages
+    sanitize_alert_content: true
+    max_alert_length: 500
+    
+    # Alert priority levels
+    severity_mapping:
+      low: "info"
+      medium: "warning"
+      high: "critical"
+  
+  # ========================================
+  # Community Threat Feed
+  # ========================================
+  threat_feed:
+    enabled: true
+    url: "https://fireclaw.app/api/v1"
+    
+    # Opt-in to contribute anonymized detection data
+    contribute_detections: false
+    
+    # Update interval for community patterns/blocklists
+    update_interval_hours: 6
+    
+    # Authentication (API key for premium features)
+    api_key: null
+  
+  # ========================================
+  # Audit Logging
+  # ========================================
+  logging:
+    # Append-only JSONL audit log
+    audit_log_enabled: true
+    audit_log_file: "logs/fireclaw-audit.jsonl"
+    
+    # What to log
+    log_fetches: true
+    log_searches: true
+    log_detections: true
+    log_alerts: true
+    log_rate_limits: true
+    log_errors: true
+    
+    # Replay support (store full request/response for forensics)
+    store_full_content: false  # WARNING: Can be large, privacy concerns
+    
+    # Log rotation
+    rotate_daily: true
+    max_log_size_mb: 100
+    retention_days: 90
+  
+  # ========================================
+  # Performance
+  # ========================================
+  performance:
+    # Cache sanitized results
+    cache_enabled: true
+    cache_ttl_seconds: 300  # 5 minutes
+    cache_max_entries: 100
+    
+    # Concurrent fetch limit
+    max_concurrent_fetches: 3
+    
+    # Timeouts
+    fetch_timeout_ms: 15000
+    summarization_timeout_ms: 30000
+  
+  # ========================================
+  # Pattern Matching
+  # ========================================
+  patterns_file: "patterns.json"
+  
+  # Severity thresholds for classification
+  severity_thresholds:
+    low: 1      # 1+ points = low severity
+    medium: 6   # 6+ points = medium severity
+    high: 16    # 16+ points = high severity
+  
+  # ========================================
+  # Inner Alignment Protection
+  # ========================================
+  # These settings CANNOT be overridden by the main agent
+  # The pipeline is FIXED and cannot be bypassed
+  
+  inner_alignment:
+    # Refuse all override/bypass attempts
+    allow_override: false
+    allow_bypass: false
+    
+    # Validate config file integrity on load
+    require_config_signature: false  # Future: cryptographic signing
+    
+    # Logging of override attempts
+    log_override_attempts: true

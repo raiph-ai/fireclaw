@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0",
+  "privacy": {
+    "shareData": false
+  },
+  "alerts": {
+    "severityThreshold": "low",
+    "digestMode": false,
+    "quietHours": {
+      "start": "22:00",
+      "end": "08:00"
+    }
+  },
+  "rateLimits": {
+    "maxFetchesPerHour": 1000,
+    "maxFetchesPerDay": 10000,
+    "dailyCostCapCents": 500
+  },
+  "domains": {
+    "defaultTrust": "neutral",
+    "autoBlockThreshold": 0
+  },
+  "dashboard": {
+    "refreshInterval": 5000,
+    "timezone": "local"
+  },
+  "maintenance": {
+    "logRetentionDays": 90
+  }
+}

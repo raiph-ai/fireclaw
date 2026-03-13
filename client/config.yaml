@@ -1,0 +1,54 @@
+# FireClaw Client Configuration
+# This configures the main OpenClaw agent's connection to the FireClaw proxy.
+
+fireclaw_client:
+  # Master toggle
+  enabled: true
+  
+  # Proxy mode: "sub-agent" (same machine) or "remote" (separate instance)
+  mode: "remote"
+  
+  # Remote proxy URL (Raspberry Pi)
+  proxy_url: "http://192.168.0.131:8420"
+  
+  # How often (seconds) to check proxy health before each request
+  health_check_interval_seconds: 60
+  
+  # ── Sub-Agent Mode ──────────────────────────────────────────
+  sub_agent:
+    model: "google/gemini-2.0-flash"
+    tools_allow:
+      - "web_fetch"
+      - "web_search"
+    tools_deny:
+      - "exec"
+      - "message"
+      - "sessions_spawn"
+      - "gateway"
+      - "Write"
+      - "Edit"
+      - "nodes"
+      - "canvas"
+      - "cron"
+      - "browser"
+  
+  # ── Remote Mode ─────────────────────────────────────────────
+  remote:
+    url: "http://192.168.1.x:8420"    # FireClaw proxy URL (LAN)
+    api_key: ""                         # Store in Keychain: fireclaw-api-key
+    timeout_ms: 30000                   # Request timeout
+    retry_count: 2                      # Retries on failure
+    retry_delay_ms: 1000                # Delay between retries
+  
+  # ── Thread Reminder ─────────────────────────────────────────
+  remind_when_disabled: true
+  reminder_message: "⚠️ FireClaw is currently disabled. Web browsing is unprotected against prompt injection. Say 'enable fireclaw' to re-enable."
+  
+  # ── Alerts ──────────────────────────────────────────────────
+  alerts:
+    enabled: true
+    channel: null                       # null = use current channel
+    severity_threshold: "medium"        # low | medium | high | critical
+    digest_mode: false                  # true = batch into hourly digest
+    include_sample: true                # Include snippet of detected injection
+    max_sample_chars: 200               # Truncate samples

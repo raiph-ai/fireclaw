@@ -1,0 +1,22 @@
+{
+  "trusted": [
+    "github.com",
+    "openai.com",
+    "anthropic.com",
+    "wikipedia.org"
+  ],
+  "neutral": [
+    "news-aggregator.com",
+    "safe-news.com"
+  ],
+  "suspicious": [
+    "sketchy-blog.net",
+    "suspicious-link.biz"
+  ],
+  "blocked": [
+    "malicious-site.com",
+    "phishing-attempt.com",
+    "evil-domain.net",
+    "malware-host.org"
+  ]
+}

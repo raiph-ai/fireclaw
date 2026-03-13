@@ -1,0 +1,67 @@
+FireClaw Threat Feed Backend - File Structure
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+threat-feed/
+│
+├── 📦 Core Application
+│   ├── server.mjs                    Main Express.js API server
+│   ├── db.mjs                        SQLite database layer & queries
+│   ├── config.yaml                   Configuration (ports, keys, limits)
+│   └── package.json                  Dependencies & npm scripts
+│
+├── 📚 Documentation
+│   ├── README.md                     Complete API documentation
+│   ├── SETUP-GUIDE.md                Step-by-step deployment guide
+│   ├── PROJECT-SUMMARY.md            Architecture & design decisions
+│   ├── QUICK-REFERENCE.md            Command cheat sheet
+│   ├── MANIFEST.md                   Delivery checklist & inventory
+│   └── STRUCTURE.txt                 This file
+│
+├── 🧪 Testing & Validation
+│   ├── test-client.mjs               API integration test client
+│   └── validate-setup.mjs            Pre-flight configuration validator
+│
+├── 🚀 Deployment
+│   ├── fireclaw-api.service          systemd service unit file
+│   ├── .env.example                  Environment variable template
+│   ├── .gitignore                    Git exclusion rules
+│   └── LICENSE                       MIT License
+│
+└── 💾 Data (created on first run)
+    └── data/
+        ├── fireclaw.db               SQLite database file
+        ├── fireclaw.db-shm           Shared memory file (SQLite)
+        └── fireclaw.db-wal           Write-ahead log (SQLite)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+API Endpoints:
+  POST   /api/report                  Submit threat detection report
+  GET    /api/blocklist               Retrieve flagged domains
+  GET    /api/patterns                Retrieve threat pattern signatures
+  GET    /api/stats                   Public dashboard statistics
+  GET    /api/reputation/:domain      Domain reputation lookup
+  GET    /health                      Health check
+
+Database Tables:
+  instances                           Registered FireClaw instances
+  reports                             Individual threat detection reports
+  domains                             Aggregated domain threat intelligence
+  patterns                            Threat pattern signatures
+
+Quick Start:
+  npm install                         Install dependencies
+  npm run init-db                     Initialize database
+  node validate-setup.mjs             Validate configuration
+  npm start                           Start server
+  node test-client.mjs                Test API
+
+Production:
+  pm2 start server.mjs                Start with PM2
+  sudo systemctl start fireclaw-api   Start with systemd
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total Files: 17 (including this one)
+Total Size: ~73 KB (source code + docs, excluding node_modules)
+Status: ✅ Complete & Production-Ready
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

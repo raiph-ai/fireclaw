@@ -1,0 +1,130 @@
+═══════════════════════════════════════════════════════════════════
+  🔥 FireClaw Dashboard — Quick Start Guide
+═══════════════════════════════════════════════════════════════════
+
+📍 Location: /Users/rAIph/clawd/skills/honey-bot/dashboard
+
+───────────────────────────────────────────────────────────────────
+  Step 1: Install Dependencies
+───────────────────────────────────────────────────────────────────
+
+cd /Users/rAIph/clawd/skills/honey-bot/dashboard
+npm install
+
+───────────────────────────────────────────────────────────────────
+  Step 2: Configure SMTP (for OTP emails)
+───────────────────────────────────────────────────────────────────
+
+Option A: Set environment variable (recommended)
+export SMTP_PASSWORD="your-gmail-app-password"
+
+Option B: Edit config.yaml
+nano config.yaml
+# Update smtp.auth.pass with your Gmail app password
+
+Get Gmail App Password:
+1. Visit: https://myaccount.google.com/apppasswords
+2. Generate app password (requires 2FA enabled)
+3. Use it for SMTP authentication
+
+───────────────────────────────────────────────────────────────────
+  Step 3: Run the Dashboard
+───────────────────────────────────────────────────────────────────
+
+Easy way:
+./start.sh
+
+Or manually:
+node server.mjs
+
+───────────────────────────────────────────────────────────────────
+  Step 4: Access the Dashboard
+───────────────────────────────────────────────────────────────────
+
+Local:     http://localhost:8420
+Network:   http://[your-lan-ip]:8420
+
+Default admin email: raiph@scarwear.com
+(Change in config.yaml if needed)
+
+───────────────────────────────────────────────────────────────────
+  Testing Without SMTP
+───────────────────────────────────────────────────────────────────
+
+If SMTP is not configured, OTP codes will be logged to console:
+🔐 OTP for raiph@scarwear.com: 123456
+
+Perfect for local testing!
+
+───────────────────────────────────────────────────────────────────
+  What's Included
+───────────────────────────────────────────────────────────────────
+
+✅ OTP-based authentication (email login)
+✅ Overview dashboard (stats, trends, top offenders)
+✅ Audit log viewer (searchable, filterable)
+✅ Domain management (trust tiers)
+✅ Configuration viewer
+✅ Threat feed (community data)
+✅ Alert history
+✅ Dark theme, responsive design
+✅ Auto-refresh every 5 seconds
+
+───────────────────────────────────────────────────────────────────
+  File Structure
+───────────────────────────────────────────────────────────────────
+
+dashboard/
+├── server.mjs              # Backend (Express.js)
+├── config.yaml             # Configuration
+├── package.json            # Dependencies
+├── start.sh                # Quick-start script
+├── README.md               # Full documentation
+├── BUILD-COMPLETE.md       # Build summary
+├── FEATURE-OVERVIEW.md     # Visual guide
+├── MANIFEST.md             # Build manifest
+├── QUICKSTART.txt          # This file
+└── public/
+    ├── index.html          # Main UI
+    ├── style.css           # Styles
+    └── app.js              # Frontend logic
+
+data/
+├── audit.jsonl             # Sample audit log
+└── domain-tiers.json       # Sample domain tiers
+
+───────────────────────────────────────────────────────────────────
+  Documentation
+───────────────────────────────────────────────────────────────────
+
+README.md               — Setup, usage, troubleshooting
+BUILD-COMPLETE.md       — Build summary and checklist
+FEATURE-OVERVIEW.md     — Visual feature guide with screenshots
+MANIFEST.md             — Complete build manifest
+
+───────────────────────────────────────────────────────────────────
+  Need Help?
+───────────────────────────────────────────────────────────────────
+
+1. Check README.md for detailed instructions
+2. Review server console logs for errors
+3. Verify config.yaml settings
+4. Test with sample data first
+
+───────────────────────────────────────────────────────────────────
+  Production Deployment
+───────────────────────────────────────────────────────────────────
+
+Before deploying to production:
+1. Change auth.sessionSecret in config.yaml
+2. Set SMTP_PASSWORD environment variable
+3. Set up HTTPS reverse proxy (nginx/Caddy)
+4. Enable secure cookie flag when using HTTPS
+5. Restrict port 8420 in firewall
+
+───────────────────────────────────────────────────────────────────
+
+Built by Atlas for FireClaw — 2026-02-14
+Status: Production-ready ✅
+
+═══════════════════════════════════════════════════════════════════
