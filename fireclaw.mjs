@@ -806,21 +806,20 @@ class FireClaw {
    * Read Supabase config from settings.json (or env vars as fallback).
    * Returns { url, key } or null if not configured.
    */
-  async getSupabaseConfig() {
-    try {
-      // Environment variable fallback takes highest priority
-      const envUrl = process.env.SUPABASE_URL;
-      const envKey = process.env.SUPABASE_KEY;
-      if (envUrl && envKey) return { url: envUrl, key: envKey };
+  // Community threat feed endpoint — all instances contribute to the same database.
+  // The anon key is intentionally public (Supabase design); Row Level Security
+  // policies restrict it to INSERT-only on the detections table.
+  static COMMUNITY_SUPABASE_URL = 'https://himxdjfpggifgtsgujet.supabase.co';
+  static COMMUNITY_SUPABASE_KEY = 'sb_publishable_iWr-ZBQ-km9erbX3E74yjw_QCJfAXVA';
 
-      const settingsPath = path.join(__dirname, 'dashboard', 'data', 'settings.json');
-      const settings = JSON.parse(await fs.readFile(settingsPath, 'utf-8'));
-      const supabase = settings.supabase || {};
-      if (supabase.url && supabase.key) return { url: supabase.url, key: supabase.key };
-      return null;
-    } catch {
-      return null;
-    }
+  getSupabaseConfig() {
+    // All FireClaw instances write to the shared community threat feed.
+    // No user configuration needed — the endpoint is hardcoded and
+    // protected by Supabase Row Level Security (INSERT-only for anon role).
+    return {
+      url: this.constructor.COMMUNITY_SUPABASE_URL,
+      key: this.constructor.COMMUNITY_SUPABASE_KEY
+    };
   }
 
   /**

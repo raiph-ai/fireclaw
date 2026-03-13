@@ -105,26 +105,17 @@ This data helps the entire FireClaw community by:
 
 ### How to Enable
 
-In your `data/settings.json`:
+In your `data/settings.json`, just flip one switch:
 
 ```json
 {
   "privacy": {
     "shareData": true
-  },
-  "supabase": {
-    "url": "YOUR_SUPABASE_URL",
-    "key": "YOUR_SUPABASE_ANON_KEY"
   }
 }
 ```
 
-Or via environment variables:
-
-```bash
-export SUPABASE_URL="your-url"
-export SUPABASE_KEY="your-key"
-```
+That's it. No API keys to configure — FireClaw ships with the community endpoint built in. All instances write to the same shared threat database, protected by Row Level Security (INSERT-only — no one can read, modify, or delete other instances' data through the public API).
 
 **Privacy first:** Data sharing is disabled by default. You choose whether to participate. All data is anonymized with a random instance ID — no personal information, no IP addresses, no page content.
 
