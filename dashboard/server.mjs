@@ -14,12 +14,13 @@ import express from 'express';
 import session from 'express-session';
 import bodyParser from 'body-parser';
 // nodemailer removed — OTP delivered via OpenClaw messaging or HTTP webhook
-import { readFileSync, existsSync, writeFileSync, createReadStream } from 'fs';
+import { readFileSync, existsSync, writeFileSync, createReadStream, mkdirSync } from 'fs';
 import { createInterface } from 'readline';
 import { parse as parseYAML } from 'yaml';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import crypto from 'crypto';
+import { Store } from 'express-session';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -81,8 +82,60 @@ app.use(restrictToLocalNetwork);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Session management
+// File-based session store — survives server restarts
+class FileSessionStore extends Store {
+  constructor(filePath) {
+    super();
+    this._path = filePath;
+    this._sessions = {};
+    try {
+      if (existsSync(this._path)) {
+        this._sessions = JSON.parse(readFileSync(this._path, 'utf8'));
+        // Prune expired sessions on load
+        const now = Date.now();
+        for (const [sid, data] of Object.entries(this._sessions)) {
+          const sess = typeof data === 'string' ? JSON.parse(data) : data;
+          if (sess?.cookie?.expires && new Date(sess.cookie.expires).getTime() < now) {
+            delete this._sessions[sid];
+          }
+        }
+        this._persist();
+      }
+    } catch { this._sessions = {}; }
+  }
+  _persist() {
+    try { writeFileSync(this._path, JSON.stringify(this._sessions, null, 2)); } catch {}
+  }
+  get(sid, cb) {
+    const data = this._sessions[sid];
+    if (!data) return cb(null, null);
+    try {
+      const sess = typeof data === 'string' ? JSON.parse(data) : data;
+      if (sess?.cookie?.expires && new Date(sess.cookie.expires).getTime() < Date.now()) {
+        delete this._sessions[sid];
+        this._persist();
+        return cb(null, null);
+      }
+      cb(null, sess);
+    } catch { cb(null, null); }
+  }
+  set(sid, sess, cb) {
+    this._sessions[sid] = sess;
+    this._persist();
+    cb?.();
+  }
+  destroy(sid, cb) {
+    delete this._sessions[sid];
+    this._persist();
+    cb?.();
+  }
+}
+
+const sessionStorePath = join(__dirname, 'data', 'sessions.json');
+
+// Session management — file-backed so sessions survive restarts
 app.use(session({
+  store: new FileSessionStore(sessionStorePath),
   secret: process.env.SESSION_SECRET || config.auth.sessionSecret,
   resave: false,
   saveUninitialized: false,

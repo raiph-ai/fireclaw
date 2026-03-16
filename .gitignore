@@ -6,4 +6,5 @@ data/settings.json
 *.log
 .DS_Store
 dashboard/data/settings.json
+dashboard/data/sessions.json
 dashboard.bak.*
