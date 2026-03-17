@@ -85,6 +85,16 @@ Even if the summarization LLM in Stage 3 gets injected, **it has no tools, no me
 
 ---
 
+### 🔥 Pi Appliance OLED Display
+
+<p align="center">
+  <img src="images/fireclaw-oled-demo.gif" alt="FireClaw OLED Display" width="390">
+</p>
+
+*FireClaw runs on a Raspberry Pi as a dedicated security appliance with a live OLED display showing real-time stats — and animated fire claws when it catches a threat.*
+
+
+
 ## Community Threat Feed
 
 **FireClaw gets smarter when we work together.**
