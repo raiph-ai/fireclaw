@@ -234,8 +234,8 @@ app.get('/api/health', (req, res) => {
     status: 'ok',
     version: settings.version || '1.0.0',
     uptime: process.uptime(),
-    costExceeded: false,  // TODO: check actual cost tracking against rateLimits.dailyCostCapCents
-    rateLimited: false,   // TODO: check actual rate limiting against rateLimits.maxFetchesPerHour
+    costExceeded: false,  // Future: check actual cost tracking against rateLimits.dailyCostCapCents
+    rateLimited: false,   // Future: check actual rate limiting against rateLimits.maxFetchesPerHour
     llmConfigured: !!(settings.llm && settings.llm.apiKey),
     timestamp: new Date().toISOString()
   };
