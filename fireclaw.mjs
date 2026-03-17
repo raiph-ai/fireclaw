@@ -226,7 +226,7 @@ class DNSBlocklistManager {
       // In production, this would fetch from source.url
       // For now, we'll simulate with local data
       
-      // TODO: Implement actual HTTP fetch
+      // Future: Implement actual HTTP fetch
       // const response = await fetch(source.url, { timeout: 5000 });
       // const data = await response.text();
       
@@ -508,7 +508,7 @@ class AlertManager {
   }
   
   async deliverAlert(alert) {
-    // TODO: Implement actual message delivery via OpenClaw message tool
+    // Future: Implement actual message delivery via OpenClaw message tool
     // For now, console log
     
     const icon = { low: 'ℹ️', medium: '⚠️', high: '🚨' }[alert.severity] || '⚠️';
