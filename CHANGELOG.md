@@ -5,6 +5,21 @@ All notable changes to FireClaw will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-21
+
+### Added
+- **`/api/scan` endpoint** — Scan arbitrary text through stages 2–4 without fetching a URL
+  - Use for tool descriptions, memory artifacts, MCP server responses, or any untrusted text
+  - Supports `source` label for audit trail and `intent` for LLM focus
+  - 64KB max input, proper validation and error handling
+  - Also accessible via `/api/proxy` with `X-FireClaw-Action: scan`
+- **`fireclaw_scan(text, source?, intent?)` export** — Programmatic access to the scan pipeline
+- Updated roadmap with completed arbitrary text scanning milestone
+
+### Changed
+- Proxy module loader now includes `fireclaw_scan` in dynamic import
+- Updated README with full `/api/scan` API documentation
+
 ## [1.0.0] - 2026-02-14
 
 ### Added

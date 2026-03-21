@@ -249,8 +249,8 @@ let fireclawProxy = null;
 async function getProxy() {
   if (!fireclawProxy) {
     try {
-      const { fireclaw_fetch, fireclaw_search, fireclaw_status } = await import('../fireclaw.mjs');
-      fireclawProxy = { fireclaw_fetch, fireclaw_search, fireclaw_status };
+      const { fireclaw_fetch, fireclaw_scan, fireclaw_search, fireclaw_status } = await import('../fireclaw.mjs');
+      fireclawProxy = { fireclaw_fetch, fireclaw_scan, fireclaw_search, fireclaw_status };
       console.log('🔥 FireClaw proxy module loaded');
     } catch (err) {
       console.error('Failed to load FireClaw proxy module:', err.message);
@@ -270,6 +270,8 @@ app.post('/api/proxy', async (req, res) => {
 
     if (action === 'fetch') {
       result = await proxy.fireclaw_fetch(params.url, params.intent);
+    } else if (action === 'scan') {
+      result = await proxy.fireclaw_scan(params.text, params.source || 'api', params.intent);
     } else if (action === 'search') {
       result = await proxy.fireclaw_search(params.query, params.count || 5);
     } else if (action === 'status') {
@@ -281,6 +283,30 @@ app.post('/api/proxy', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error(`[FireClaw Proxy] Error handling ${action}:`, err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// === Scan API — scan arbitrary text through stages 2-4 ===
+
+app.post('/api/scan', async (req, res) => {
+  const { text, source, intent } = req.body;
+
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ error: 'Missing required field: text (string)' });
+  }
+
+  // Enforce a reasonable max input size (64KB)
+  if (text.length > 65536) {
+    return res.status(413).json({ error: `Text too large: ${text.length} chars (max 65536)` });
+  }
+
+  try {
+    const proxy = await getProxy();
+    const result = await proxy.fireclaw_scan(text, source || 'api', intent || null);
+    res.json(result);
+  } catch (err) {
+    console.error('[FireClaw Scan] Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });

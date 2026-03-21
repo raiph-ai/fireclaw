@@ -1076,6 +1076,193 @@ class FireClaw {
   }
   
   /**
+   * Scan arbitrary text through stages 2-4 (no fetch, no DNS)
+   * Use for tool descriptions, memory artifacts, MCP responses, etc.
+   */
+  async processScan(text, source = 'unknown', intent = null) {
+    if (!this.enabled) {
+      return { 
+        content: null, 
+        error: 'FireClaw is disabled. Enable in config.yaml',
+        disabled: true 
+      };
+    }
+    
+    if (!text || typeof text !== 'string') {
+      return {
+        content: null,
+        error: 'No text provided to scan',
+        invalid: true
+      };
+    }
+    
+    const startTime = Date.now();
+    const scanId = crypto.randomBytes(8).toString('hex');
+    
+    // Rate limiting (counts as a fetch)
+    if (this.rateLimiter) {
+      const limitCheck = this.rateLimiter.checkLimit('fetch');
+      
+      if (!limitCheck.allowed) {
+        this.stats.blockedTotal++;
+        
+        await this.auditLogger?.log({
+          operation: 'scan',
+          source,
+          intent,
+          scanId,
+          rateLimited: true,
+          reason: limitCheck.reason,
+          retryAfter: limitCheck.retryAfter
+        });
+        
+        return {
+          content: null,
+          error: `Rate limit exceeded: ${limitCheck.reason}. Retry after ${limitCheck.retryAfter}s`,
+          rateLimited: true
+        };
+      }
+    }
+    
+    // Check cache
+    const cacheKey = `scan:${crypto.createHash('sha256').update(text.substring(0, 500)).digest('hex')}:${intent || ''}`;
+    if (this.cache) {
+      const cached = this.cache.get(cacheKey);
+      if (cached) {
+        console.log('[FireClaw] Cache hit (scan)');
+        
+        await this.auditLogger?.log({
+          operation: 'scan',
+          source,
+          intent,
+          scanId,
+          cached: true,
+          duration: Date.now() - startTime
+        });
+        
+        return cached;
+      }
+    }
+    
+    try {
+      console.log(`[FireClaw] Scanning text from source: ${source} (${text.length} chars)`);
+      
+      // Stage 2: Structural sanitization (use 'neutral' tier for arbitrary text)
+      const { inputSanitizer: scanSanitizer } = await createSanitizers(
+        path.join(__dirname, this.config.patterns_file),
+        'neutral'
+      );
+      
+      const sanitizeResult = scanSanitizer.sanitize(
+        text,
+        this.config.pipeline?.structural?.max_input_chars || 12000
+      );
+      
+      await this.auditLogger?.log({
+        stage: 'structural_sanitization',
+        operation: 'scan',
+        source,
+        detections: sanitizeResult.detections.length,
+        severity: sanitizeResult.severity,
+        metadata: sanitizeResult.metadata
+      });
+      
+      // Stage 3: LLM summarization (with canary injection)
+      const { summary, canaries } = await this.summarize(sanitizeResult.sanitized, `scan:${source}`, intent);
+      
+      // Stage 4: Output scan (with canary detection)
+      const { clean, detections: outputDetections, severity: outputSeverity, flagged, metadata } = 
+        await this.outputScan(summary, `scan:${source}`);
+      
+      // Combine detections
+      const allDetections = [...sanitizeResult.detections, ...outputDetections];
+      const totalSeverity = sanitizeResult.severity + outputSeverity;
+      const severityLevel = classifySeverity(totalSeverity, this.config.severity_thresholds);
+      
+      this.stats.fetchesTotal++;
+      this.stats.detectionsTotal += allDetections.length;
+      
+      // Alert if needed
+      if (allDetections.length > 0) {
+        this.stats.alertsTotal++;
+        
+        await this.alertManager?.sendAlert({
+          severity: severityLevel,
+          message: `⚠️  **FireClaw Scan Detection**\n\n` +
+            `**Source:** ${source}\n` +
+            `**Type:** Arbitrary text scan\n` +
+            `**Severity:** ${severityLevel} (score: ${totalSeverity})\n` +
+            `**Detections:** ${allDetections.length}\n` +
+            `**Flagged:** ${flagged ? 'Yes' : 'No'}\n\n` +
+            `**Top patterns:**\n${allDetections.slice(0, 5).map(d => `• ${d.category}.${d.name}`).join('\n')}`
+        });
+      }
+      
+      // Consume rate limit token
+      const cost = this.rateLimiter?.config.cost_per_fetch_estimate || 0;
+      this.rateLimiter?.consumeToken('fetch', cost);
+      
+      // Log scan
+      await this.auditLogger?.log({
+        operation: 'scan',
+        source,
+        intent,
+        scanId,
+        inputLength: text.length,
+        detections: allDetections.length,
+        severity: totalSeverity,
+        severityLevel,
+        flagged,
+        canariesInjected: canaries.length,
+        canarySurvival: metadata?.canarySurvival,
+        duration: Date.now() - startTime,
+        cost
+      });
+      
+      const result = {
+        content: clean,
+        error: null,
+        metadata: {
+          scanId,
+          source,
+          detections: allDetections.length,
+          severity: totalSeverity,
+          severityLevel,
+          flagged,
+          duration: Date.now() - startTime,
+          inputLength: text.length,
+          canaries: canaries.length
+        }
+      };
+      
+      // Cache result
+      if (this.cache) {
+        this.cache.set(cacheKey, result);
+      }
+      
+      return result;
+      
+    } catch (err) {
+      console.error(`[FireClaw] Scan pipeline error: ${err.message}`);
+      
+      await this.auditLogger?.log({
+        operation: 'scan',
+        source,
+        intent,
+        scanId,
+        error: err.message,
+        stack: err.stack,
+        duration: Date.now() - startTime
+      });
+      
+      return {
+        content: null,
+        error: `FireClaw scan pipeline error: ${err.message}`
+      };
+    }
+  }
+  
+  /**
    * Main pipeline: DNS check → fetch → sanitize → summarize → scan
    */
   async processFetch(url, intent = null) {
@@ -1536,6 +1723,16 @@ export async function fireclaw_search(query, count = 5) {
 }
 
 /**
+ * fireclaw_scan(text, source?, intent?)
+ * Scan arbitrary text through stages 2-4 (structural sanitize → LLM summarize → output scan)
+ * Use for tool descriptions, memory artifacts, MCP server responses, etc.
+ */
+export async function fireclaw_scan(text, source = 'unknown', intent = null) {
+  const bot = await getFireClaw();
+  return await bot.processScan(text, source, intent);
+}
+
+/**
  * fireclaw_stats()
  * Get comprehensive FireClaw statistics
  */
@@ -1576,6 +1773,7 @@ export async function fireclaw_status() {
 // Export for OpenClaw skill system
 export default {
   fireclaw_fetch,
+  fireclaw_scan,
   fireclaw_search,
   fireclaw_stats,
   fireclaw_enable,
