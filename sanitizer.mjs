@@ -493,7 +493,7 @@ export class OutputSanitizer {
       metadata.truncated = true;
     }
     
-    // 2. Scan for output-specific patterns
+    // 2. Scan for output-specific patterns (tool calls, code execution markers)
     const outputMatches = this.patterns.scan(clean, ['output_signatures']);
     detections.push(...outputMatches);
     
@@ -501,9 +501,11 @@ export class OutputSanitizer {
     const injectionMatches = this.patterns.scan(clean, ['injection_signatures']);
     detections.push(...injectionMatches);
     
-    // 4. Scan for exfiltration attempts
-    const exfilMatches = this.patterns.scan(clean, ['exfiltration']);
-    detections.push(...exfilMatches);
+    // NOTE: Exfiltration patterns are NOT scanned on output.
+    // The LLM summary legitimately mentions URLs, emails, and IPs from the
+    // source content. Flagging those in the *summary* causes false positives.
+    // Exfiltration scanning remains active on INPUT (Stage 2) where it
+    // catches actual exfil attempts embedded in raw web content.
     
     // 5. Check for canary tokens (CRITICAL: indicates bypass)
     if (this.canarySystem) {

@@ -96,7 +96,7 @@
     "shell_commands": "\\b(rm|curl|wget|bash|sh|python|node|perl|ruby)\\s+",
     "shell_dangerous": "\\brm\\s+-rf",
     "data_exfiltration": "(send|post|upload|transmit|email|message|forward).*?(to|@|http)",
-    "credential_request": "(password|token|key|secret|credential|auth|api[_-]?key)",
+    "credential_request": "\\b(password|api[_-]?key|secret[_-]?key|auth[_-]?token|credentials?)\\b",
     "encoding_tricks": "\\b(rot13|base64|atob|btoa|decode|encode|unescape|hex)\\s*\\(",
     "prompt_continuation": "(continue|proceed|next|following|resume)\\s+(with|the)\\s+(instruction|prompt|command|task)",
     "format_break": "(end|stop|exit|quit|break)\\s+(format|mode|role|character|simulation)",
@@ -104,7 +104,7 @@
     "hidden_instruction_comment": "\\[hidden\\]|<!--\\s*instruction",
     "hidden_instruction_asterisk": "\\*\\*hidden\\*\\*|\\*instruction\\*",
     "delimiter_tricks": "={5,}|#{5,}|-{5,}|\\*{5,}",
-    "unicode_trickery": "[\\u0000-\\u001F\\u007F-\\u009F]+",
+    "unicode_trickery": "[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F-\\u009F]+",
     "homoglyph_latin_cyrillic": "[\\u0430-\\u044F\\u0410-\\u042F].*?[a-zA-Z]|[a-zA-Z].*?[\\u0430-\\u044F\\u0410-\\u042F]",
     "rtl_injection": "[\u202E\u202D].*?(instruction|system|command)",
     "invisible_separator": "[\u2063\u2064]",
@@ -144,7 +144,7 @@
     "sensitive_op_rm": "\\brm\\b.*?\\s+-rf?",
     "sensitive_op_kill": "\\b(kill|pkill|killall)\\s+",
     "sensitive_op_shutdown": "\\b(shutdown|reboot|halt|poweroff)\\b",
-    "sensitive_op_format": "\\b(format|fdisk|mkfs)\\b",
+    "sensitive_op_format": "\\b(fdisk|mkfs)\\b|\\bformat\\s+(disk|drive|partition|volume)",
     "sensitive_op_chmod": "\\bchmod\\s+(777|666)",
     "file_exfiltration": "(read|cat|type)\\s+.*?\\|\\s*(curl|wget|nc)",
     "network_exfil": "(curl|wget|nc|netcat)\\s+.*?(http|\\.\\d+)",
@@ -184,8 +184,8 @@
   "severity_weights": {
     "structural": 1,
     "injection_signatures": 3,
-    "output_signatures": 5,
-    "exfiltration": 4,
+    "output_signatures": 2,
+    "exfiltration": 2,
     "canary_patterns": 10
   }
 }
