@@ -5,7 +5,7 @@ All notable changes to FireClaw will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-03-21
+## [1.1.0] - 2026-03-22
 
 ### Added
 - **`/api/scan` endpoint** — Scan arbitrary text through stages 2–4 without fetching a URL
@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Also accessible via `/api/proxy` with `X-FireClaw-Action: scan`
 - **`fireclaw_scan(text, source?, intent?)` export** — Programmatic access to the scan pipeline
 - Updated roadmap with completed arbitrary text scanning milestone
+
+### Fixed
+- **Reduced false positives in Stage 4 output scanner** — Relaxed overly aggressive patterns:
+  - `unicode_trickery` — no longer flags normal Unicode text (e.g. curly quotes, em dashes)
+  - `credential_request` — scoped to actual credential extraction attempts, not mentions of credentials in context
+  - `sensitive_op_format` — tightened to match actual tool-call syntax, not prose descriptions
+
+### Verified
+- **Community threat feed (Supabase)** — confirmed working across instances; anonymous detection metadata is shared correctly with INSERT-only Row Level Security
 
 ### Changed
 - Proxy module loader now includes `fireclaw_scan` in dynamic import
