@@ -1,18 +1,27 @@
 {
   "name": "fireclaw",
-  "version": "1.0.0",
-  "description": "Prompt injection defense proxy for OpenClaw AI agents",
+  "version": "1.1.0",
+  "description": "Open-source security proxy that protects AI agents from prompt injection attacks. 4-stage defense-in-depth pipeline.",
   "type": "module",
   "main": "fireclaw.mjs",
+  "bin": {
+    "fireclaw": "./fireclaw.mjs"
+  },
   "scripts": {
+    "start": "node fireclaw.mjs",
     "test": "node tests/test-pipeline.mjs"
   },
   "keywords": [
+    "fireclaw",
     "openclaw",
     "security",
     "prompt-injection",
     "ai-safety",
-    "llm-security"
+    "llm-security",
+    "proxy",
+    "firewall",
+    "ai-agent",
+    "defense-in-depth"
   ],
   "author": "Ralph Perez",
   "license": "AGPL-3.0-or-later",
@@ -25,6 +34,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/openclaw/skills/tree/main/fireclaw"
-  }
+    "url": "git+https://github.com/raiph-ai/fireclaw.git"
+  },
+  "homepage": "https://fireclaw.app",
+  "bugs": {
+    "url": "https://github.com/raiph-ai/fireclaw/issues"
+  },
+  "files": [
+    "fireclaw.mjs",
+    "sanitizer.mjs",
+    "patterns.json",
+    "config.yaml",
+    "client/",
+    "dashboard/",
+    "LICENSE",
+    "README.md",
+    "NOTICE",
+    "COPYRIGHT"
+  ]
 }

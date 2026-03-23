@@ -1,0 +1,19 @@
+services:
+  fireclaw:
+    build: .
+    container_name: fireclaw
+    restart: unless-stopped
+    ports:
+      - "8420:8420"
+    volumes:
+      - fireclaw-data:/app/data
+      - fireclaw-logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      # Set your LLM API key for Stage 3 (summarization)
+      # - ANTHROPIC_API_KEY=your-key-here
+      # - OPENAI_API_KEY=your-key-here
+
+volumes:
+  fireclaw-data:
+  fireclaw-logs:

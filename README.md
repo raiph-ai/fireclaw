@@ -1,3 +1,5 @@
+![CI](https://github.com/raiph-ai/fireclaw/actions/workflows/ci.yml/badge.svg)
+
 # 🛡️ FireClaw — A Firewall for Your Agent's Brain
 
 <p align="center">
@@ -197,6 +199,32 @@ curl -X POST http://localhost:8420/api/proxy \
   -H 'Content-Type: application/json' \
   -H 'X-FireClaw-Action: fetch' \
   -d '{"url":"https://example.com","intent":"Get page summary"}'
+```
+
+### Docker Quick Start
+
+Run FireClaw in a container with zero setup:
+
+```bash
+git clone https://github.com/raiph-ai/fireclaw.git
+cd fireclaw
+docker compose up -d
+```
+
+FireClaw will be available at `http://localhost:8420`.
+
+To pass your LLM API key for Stage 3 summarization:
+
+```bash
+ANTHROPIC_API_KEY=your-key docker compose up -d
+```
+
+Or edit `docker-compose.yml` and uncomment the environment variable.
+
+### npx (One-Liner)
+
+```bash
+npx fireclaw
 ```
 
 ---

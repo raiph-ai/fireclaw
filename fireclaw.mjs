@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // FireClaw — Security Proxy for OpenClaw
 // Copyright (C) 2026 Ralph Perez
 // Licensed under the GNU Affero General Public License v3.0
