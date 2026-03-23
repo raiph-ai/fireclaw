@@ -826,7 +826,7 @@ class FireClaw {
   /**
    * Read LLM config from dashboard settings
    */
-  async pushToSupabase(fetchResult, url) {
+  async pushToSupabase(fetchResult, url, detections = []) {
     try {
       const settingsPath = path.join(__dirname, 'dashboard', 'data', 'settings.json');
       const settings = JSON.parse(await fs.readFile(settingsPath, 'utf-8'));
@@ -859,7 +859,9 @@ class FireClaw {
         severity_level: fetchResult.metadata?.severityLevel || 'low',
         flagged: fetchResult.metadata?.flagged || false,
         duration_ms: fetchResult.metadata?.duration || 0,
-        patterns_matched: []
+        patterns_matched: Array.isArray(detections) 
+          ? detections.slice(0, 20).map(d => `${d.category || 'unknown'}.${d.name || 'unknown'}`).filter(s => s.length <= 100)
+          : []
       };
 
       // --- Input validation & sanitization ---
@@ -881,7 +883,7 @@ class FireClaw {
         severity_level: rawPayload.severity_level,
         flagged: rawPayload.flagged,
         duration_ms: rawPayload.duration_ms,
-        patterns_matched: []
+        patterns_matched: rawPayload.patterns_matched
       };
       
       await fetch(`${supabaseConfig.url}/rest/v1/detections`, {
@@ -1485,7 +1487,7 @@ class FireClaw {
       }
       
       // Fire-and-forget: push to community threat feed (if opted in)
-      this.pushToSupabase(result, url).catch(() => {});
+      this.pushToSupabase(result, url, allDetections).catch(() => {});
       
       return result;
       
